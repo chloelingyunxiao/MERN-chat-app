@@ -11,11 +11,11 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // 渲染render根组件到HTML页面
 root.render(
-  <ChatProvider>
+  <ChakraProvider>
     <BrowserRouter>
-      <ChakraProvider>
+      <ChatProvider>
         <App />
-      </ChakraProvider>
+      </ChatProvider>
     </BrowserRouter>
-  </ChatProvider>
+  </ChakraProvider>
 );
