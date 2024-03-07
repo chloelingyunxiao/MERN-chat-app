@@ -20,12 +20,14 @@ import {
 import React from "react";
 import { useState } from "react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { ChatState } from "../../../Context/ChatProvider";
+import { ChatState } from "../../Context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 // import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useHistory } from "react-router-dom";
 import { useDisclosure } from "@chakra-ui/react";
 import axios from "axios";
+import ChatLoading from "../ChatLoading";
+import UserListItem from "../UserAvatar/UserListItem";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -46,7 +48,7 @@ const SideDrawer = () => {
   const handleSearch = async () => {
     if (!search) {
       toast({
-        title: "Please enter something in seach",
+        title: "Please Enter something in search",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -57,6 +59,7 @@ const SideDrawer = () => {
 
     try {
       setLoading(true);
+
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
@@ -64,8 +67,9 @@ const SideDrawer = () => {
       };
 
       const { data } = await axios.get(`/api/user?search=${search}`, config);
+
       setLoading(false);
-      setSearchResult(false);
+      setSearchResult(data);
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -77,6 +81,8 @@ const SideDrawer = () => {
       });
     }
   };
+
+  const accessChat = (userId) => {};
 
   return (
     <>
@@ -145,11 +151,21 @@ const SideDrawer = () => {
                 />
                 <Button onClick={handleSearch}> Go</Button>
               </Box>
-              {/* {loading?(
-                <ChatLoading/>
-              ):(
-                <span>results</span>
-              )} */}
+
+              {/* 搜索过程，如果在loading的时候显示loading，否则显示结果 */}
+              {loading ? (
+                <ChatLoading />
+              ) : Array.isArray(searchResult) ? (
+                searchResult.map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => accessChat(user._id)}
+                  />
+                ))
+              ) : (
+                <div></div>
+              )}
             </DrawerBody>
           </DrawerContent>
         </DrawerOverlay>

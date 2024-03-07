@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ChatState } from "../Context/ChatProvider";
 import { Box } from "@chakra-ui/react";
-import SideDrawer from "../components/Authentication/miscellaneous/SideDrawer";
-import MyChats from "../components/Authentication/miscellaneous/MyChats";
-import ChatBox from "../components/Authentication/miscellaneous/ChatBox";
+import SideDrawer from "../components/miscellaneous/SideDrawer";
+import MyChats from "../components/MyChats";
+import ChatBox from "../components/ChatBox";
 
 const Chatpage = () => {
   const { user } = ChatState();
