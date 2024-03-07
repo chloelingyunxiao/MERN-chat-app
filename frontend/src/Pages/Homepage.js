@@ -12,7 +12,7 @@ const Homepage = () => {
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (!userInfo) history.push("/chats");
+    if (userInfo) history.push("/chats");
     console.log("happyhapyy!!!");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);

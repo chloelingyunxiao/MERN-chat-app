@@ -15,9 +15,9 @@ app.use(express.json()); // to access the json data
 dotenv.config();
 connectDB();
 
-app.get("/", (request, respond) => {
-  respond.send("API is running automatically!");
-});
+// app.get("/", (request, respond) => {
+//   respond.send("API is running automatically!");
+// });
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
