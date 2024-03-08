@@ -16,6 +16,7 @@ import {
   DrawerBody,
   Input,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import React from "react";
 import { useState } from "react";
@@ -95,6 +96,7 @@ const SideDrawer = () => {
       };
       const { data } = await axios.post(`/api/chat`, { userId }, config);
 
+      // find and append the chat data
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
@@ -167,7 +169,7 @@ const SideDrawer = () => {
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay>
           <DrawerContent>
-            <DrawerHeader boardBottomWidth="1px">Search Users</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Search Users</DrawerHeader>
             <DrawerBody>
               <Box display="flex" pb={2}>
                 <Input
@@ -193,6 +195,7 @@ const SideDrawer = () => {
               ) : (
                 <div></div>
               )}
+              {loadingChat && <Spinner ml="auto" display="flex" />}
             </DrawerBody>
           </DrawerContent>
         </DrawerOverlay>
