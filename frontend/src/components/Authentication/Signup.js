@@ -87,7 +87,7 @@ const Signup = () => {
       return;
     }
 
-    if (password != confirmpassword) {
+    if (password !== confirmpassword) {
       toast({
         title: "Password Do Not Match",
         status: "warning",
