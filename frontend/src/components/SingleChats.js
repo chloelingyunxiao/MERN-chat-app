@@ -14,6 +14,8 @@ import ProfileModal from "./miscellaneous/ProfileModal";
 import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
+import Lottie from "react-lottie";
+import animationData from "../animation/typing.json";
 
 const ENDPOINT = "http://localhost:8000"; //backend port8000, frontend 3000
 
@@ -27,6 +29,15 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();
@@ -105,6 +116,7 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
     socket.on("stop typing", () => setIsTyping(false));
     // eslint-disable-next-line
   }, []);
+
   useEffect(() => {
     fetchMessages();
     selectedChatCompare = selectedChat;
@@ -118,6 +130,10 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
         //give notification
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -213,7 +229,19 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
               isRequired
               mt={3}
             >
-              {istyping ? <div>Typing...</div> : <></>}
+              {istyping ? (
+                <div>
+                  <Lottie
+                    options={defaultOptions}
+                    // height={50}
+                    width={70}
+                    style={{ marginBottom: 15, marginLeft: 0 }}
+                  />
+                  {/* Typing... */}
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
