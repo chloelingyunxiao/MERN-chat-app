@@ -21,7 +21,7 @@ const ENDPOINT = "http://localhost:8000"; //backend port8000, frontend 3000
 
 var socket, selectedChatCompare;
 
-const SingleChats = ({ fetchAgain, setFetchAgain }) => {
+const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -41,6 +41,38 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();
+
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      setLoading(true);
+
+      const { data } = await axios.get(
+        `/api/message/${selectedChat._id}`,
+        config
+      );
+      console.log(messages);
+      setMessages(data);
+      setLoading(false);
+      socket.emit("join chat", selectedChat._id); //join chat room
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to Load the Messages",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
@@ -76,38 +108,6 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  const fetchMessages = async () => {
-    if (!selectedChat) return;
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-
-      setLoading(true);
-
-      const { data } = await axios.get(
-        `/api/message/${selectedChat._id}`,
-        config
-      );
-      console.log(messages);
-      setMessages(data);
-      setLoading(false);
-      socket.emit("join chat", selectedChat._id); //join chat room
-    } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: "Failed to Load the Messages",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-    }
-  };
-
   useEffect(() => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
@@ -120,6 +120,7 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     fetchMessages();
     selectedChatCompare = selectedChat;
+    // eslint-disable-next-line
   }, [selectedChat]);
 
   //receive message from socket
@@ -135,6 +136,12 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
           setFetchAgain(!fetchAgain);
         }
       } else {
+        console.log(
+          "selected:",
+          selectedChatCompare,
+          "new message",
+          newMessageReceived
+        );
         setMessages([...messages, newMessageReceived]);
       }
     });
@@ -180,23 +187,24 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
               icon={<ArrowBackIcon />}
               onClick={() => setSelectedChat("")}
             />
-            {!selectedChat.isGroupChat ? (
-              <>
-                {getSender(user, selectedChat.users)}
-                <ProfileModal
-                  user={getSenderFull(user, selectedChat.users)}
-                ></ProfileModal>
-              </>
-            ) : (
-              <>
-                {selectedChat.chatName.toUpperCase()}{" "}
-                <UpdateGroupChatModal
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                  fetchMessages={fetchMessages}
-                ></UpdateGroupChatModal>
-              </>
-            )}
+            {messages &&
+              (!selectedChat.isGroupChat ? (
+                <>
+                  {getSender(user, selectedChat.users)}
+                  <ProfileModal
+                    user={getSenderFull(user, selectedChat.users)}
+                  />
+                </>
+              ) : (
+                <>
+                  {selectedChat.chatName.toUpperCase()}
+                  <UpdateGroupChatModal
+                    fetchMessages={fetchMessages}
+                    fetchAgain={fetchAgain}
+                    setFetchAgain={setFetchAgain}
+                  />
+                </>
+              ))}
           </Text>
           <Box
             display="flex"
@@ -218,8 +226,8 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
                 margin="auto"
               />
             ) : (
-              <div className="Messages">
-                <ScrollableChat messages={messages}></ScrollableChat>
+              <div className="messages">
+                <ScrollableChat messages={messages} />
               </div>
             )}
 
@@ -237,7 +245,6 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
-                  {/* Typing... */}
                 </div>
               ) : (
                 <></>
@@ -259,7 +266,7 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
           justifyContent="center"
           h="100%"
         >
-          <Text fontSize="3x1" pb={3} fontFamily="work sans">
+          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
             Click on a user to start chatting
           </Text>
         </Box>
@@ -268,4 +275,4 @@ const SingleChats = ({ fetchAgain, setFetchAgain }) => {
   );
 };
 
-export default SingleChats;
+export default SingleChat;
